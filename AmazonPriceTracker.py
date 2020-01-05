@@ -1,3 +1,17 @@
+import numpy as np
+import matplotlib.pyplot as plt # for plotting price data
+import pandas as pd
+from pandas.errors import EmptyDataError # error produced if empty csv if parsed
+
+from bs4 import BeautifulSoup
+import urllib.request
+from urllib.request import HTTPError # for catching timeout for website response
+
+import time # for sleep function
+from datetime import datetime # for timestamp
+
+import os # for creation of directories
+
 class AmazonPriceTracker:
     
     def __init__(self, tracker_name="tracker"):

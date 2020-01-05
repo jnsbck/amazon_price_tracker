@@ -1,4 +1,7 @@
 ### A simple tool, to keep track of prices on amazon.de/amazon.com.
+This tool grew out of my need to be able to keep an eye on the price of different copmuter parts for my workstation build. 
+It basically does what is stated, however I would still like to add further functionality in later releases.
+I have only tested it on amazon.de, but I think it should work on other domains extensions.
 
 ##### This Tool is far from finished and still lacks a lot of basic functionalities (e.g. specifying currency).
 
