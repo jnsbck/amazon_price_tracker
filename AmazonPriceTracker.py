@@ -30,46 +30,54 @@ class AmazonPriceTracker:
         self.price_history = pd.DataFrame(columns=DateTime+self.items["nicknames"])
         
         self.__retrieve_price_hist()
+        self.latest_prices = self.price_history.tail(1)
         
+    def __webpage2html(self, URL, parser="html.parser"):
+        hdr = { 'User-Agent' : 'Mozilla/5.0 (Windows NT 6.1; Win64; x64)' }
+        req = urllib.request.Request(URL, headers=hdr)
+        with urllib.request.urlopen(req) as f:
+            html_doc = f.read()
+        return BeautifulSoup(html_doc, parser)
+
         
     def add_item(self, URL, nickname):
-        ASIN = URL.split("/")[4]
-        URL = "/".join(URL.split("/")[:5])
-        if ASIN not in self.items["asins"]:
-            print("Adding item to list of tracked items.")
-            try:
-                with urllib.request.urlopen(URL) as f:
-                    html_doc = f.read()
-
-                soup = BeautifulSoup(html_doc, 'html.parser')
-
-                # extract name
-                for element in soup.find_all("span"):
-                    if "productTitle" in str(element):
-                        title_containing_str = str(element)
-                        break
-                title_containing_str_start = title_containing_str.find(">")+1
-                title_containing_str_end = title_containing_str.find("</")
-                title_raw = title_containing_str[title_containing_str_start:title_containing_str_end]
-                title = title_raw.replace("\n", "").replace("  ", "")
-                
-                # save title and URL to txt
-                f = open(self.PATH + "tracked_items.txt","a", newline="\n")
-                if title not in self.items["names"]:
-                    f.write(nickname + " : " + title + " : " + URL + " : " + ASIN + "\n")
-                f.close()
-
-                # save title and URL to dict
-                self.items["names"].append(title)
-                self.items["urls"].append(URL)
-                self.items["nicknames"].append(nickname)
-                self.items["asins"].append(ASIN)
-                print("{} was succesfully added to list of tracked items.".format(nickname))
-
-            except HTTPError:
-                print("HTTP 503 Error, try to add item again later.")
+        if "amazon" not in URL:
+            print("This is not a valid amazon url.")
         else:
-            print("This item is already being tracked.")
+            ASIN = URL.split("/")[4]
+            URL = "/".join(URL.split("/")[:5])
+            if ASIN not in self.items["asins"]:
+                print("Adding item to list of tracked items.")
+                try:
+                    soup = self.__webpage2html(URL)
+
+                    # extract name
+                    for element in soup.find_all("span"):
+                        if "productTitle" in str(element):
+                            title_containing_str = str(element)
+                            break
+                    title_containing_str_start = title_containing_str.find(">")+1
+                    title_containing_str_end = title_containing_str.find("</")
+                    title_raw = title_containing_str[title_containing_str_start:title_containing_str_end]
+                    title = title_raw.replace("\n", "").replace("  ", "")
+
+                    # save title and URL to txt
+                    f = open(self.PATH + "tracked_items.txt","a", newline="\n")
+                    if title not in self.items["names"]:
+                        f.write(nickname + " : " + title + " : " + URL + " : " + ASIN + "\n")
+                    f.close()
+
+                    # save title and URL to dict
+                    self.items["names"].append(title)
+                    self.items["urls"].append(URL)
+                    self.items["nicknames"].append(nickname)
+                    self.items["asins"].append(ASIN)
+                    print("{} was succesfully added to list of tracked items.".format(nickname))
+
+                except HTTPError:
+                    print("HTTP 503 Error, try to add item again later.")
+            else:
+                print("This item is already being tracked.")
             
             
     def __retrieve_items(self):
@@ -131,10 +139,7 @@ class AmazonPriceTracker:
             for n, URL in enumerate(URLs):
                 try:
                     print("Fetching price for {}.".format(self.items["nicknames"][n]))
-                    with urllib.request.urlopen(URL) as f:
-                        html_doc = f.read()
-
-                    soup = BeautifulSoup(html_doc, 'lxml')
+                    soup = self.__webpage2html(URL, "lxml")
                     time.sleep(delay)
 
                     price_str = soup.select("#priceblock_ourprice")[0].text.replace(",",".")
@@ -155,6 +160,7 @@ class AmazonPriceTracker:
         new_row[DateTime] = datetime_vec
         new_row.index = range(self.price_history.shape[0],self.price_history.shape[0]+1)
         self.price_history = self.price_history.append(new_row, sort=False, ignore_index=True)
+        self.latest_prices = self.price_history.tail(1)
 
         # save price history
         self.price_history.to_csv(self.PATH + "price_history.csv", index_label=False, index=False)
@@ -213,6 +219,12 @@ class AmazonPriceTracker:
         plt.xlabel(timescale + "s")
         plt.ylabel("Price in €")
         plt.show()
+        
+        
+    def current_prices(self):
+        self.fetch_prices()
+        current_price = self.latest_prices
+        return current_price
 
         
     def deploy(self):

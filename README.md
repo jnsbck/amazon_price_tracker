@@ -6,6 +6,7 @@ I have only tested it on amazon.de, but I think it should work on other domains 
 ##### This Tool is far from finished and still lacks a lot of basic functionalities (e.g. specifying currency).
 
 ##### Functionanlities still to be added:
+- no item on this page ERROR
 - send email if price drops below threshhold or by a margin,
 - send email at request of daily/weekly etc. with current prices and plot of price history attached
 - display number of items left in stock if low and if available
