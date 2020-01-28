@@ -12,6 +12,8 @@ from datetime import datetime # for timestamp
 
 import os # for creation of directories
 
+
+
 class AmazonPriceTracker:
     
     def __init__(self, tracker_name="tracker"):
@@ -37,10 +39,12 @@ class AmazonPriceTracker:
         'User-Agent': 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36',
         }
         res = requests.get(URL, headers=headers)
+        res.raise_for_status()
 
         soup = BeautifulSoup(res.text, 'html.parser')
         return soup
-        
+
+     
     def add_item(self, URL, nickname):
         if "amazon" not in URL:
             print("This is not a valid amazon url.")
@@ -132,7 +136,7 @@ class AmazonPriceTracker:
         # extract price
         if URLs is None:
             URLs = self.items["urls"]
-        error_status = False
+        error_status = None
         delay = 1 # delay between fetching items in s
         DateTime = ["year", "month", "day", "hour", "minute"]
         new_row = pd.DataFrame(columns=DateTime+self.items["nicknames"])
@@ -153,18 +157,20 @@ class AmazonPriceTracker:
                     new_row[item_name] = [np.NaN]
                     print("\n A price for {} could not be fetched.".format(item_name))
                     error_status = True
+        
+            now = datetime.now()
+            datetime_vec = now.timetuple()[0:5]
+            new_row[DateTime] = datetime_vec
+            new_row.index = range(self.price_history.shape[0],self.price_history.shape[0]+1)
+            self.price_history = self.price_history.append(new_row, sort=False, ignore_index=True)
+            self.latest_prices = self.price_history.tail(1)
+
+            # save price history
+            self.price_history.to_csv(self.PATH + "price_history.csv", index_label=False, index=False)
+    
         else:
             print("There is no items to fetch a price for. Please add items using .add_item() first.")
-
-        now = datetime.now()
-        datetime_vec = now.timetuple()[0:5]
-        new_row[DateTime] = datetime_vec
-        new_row.index = range(self.price_history.shape[0],self.price_history.shape[0]+1)
-        self.price_history = self.price_history.append(new_row, sort=False, ignore_index=True)
-        self.latest_prices = self.price_history.tail(1)
-
-        # save price history
-        self.price_history.to_csv(self.PATH + "price_history.csv", index_label=False, index=False)
+    
         return error_status
                 
         
@@ -249,7 +255,7 @@ class AmazonPriceTracker:
                         try:
                             print("Attempt {} to fetch prices.".format(attempt))
                             status = self.fetch_prices(URLs)
-                            if status == 0:
+                            if status == None:
                                 print("Fetching was a success!")
                                 print("...waiting for next fetch.")
                                 break
