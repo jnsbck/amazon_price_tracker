@@ -4,7 +4,7 @@ import pandas as pd
 from pandas.errors import EmptyDataError # error produced if empty csv if parsed
 
 from bs4 import BeautifulSoup
-import urllib.request
+import requests # fetches html content of a website, instead of urllib2 previously
 from urllib.request import HTTPError # for catching timeout for website response
 
 import time # for sleep function
@@ -33,12 +33,13 @@ class AmazonPriceTracker:
         self.latest_prices = self.price_history.tail(1)
         
     def __webpage2html(self, URL, parser="html.parser"):
-        hdr = { 'User-Agent' : 'Mozilla/5.0 (Windows NT 6.1; Win64; x64)' }
-        req = urllib.request.Request(URL, headers=hdr)
-        with urllib.request.urlopen(req) as f:
-            html_doc = f.read()
-        return BeautifulSoup(html_doc, parser)
+        headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36',
+        }
+        res = requests.get(URL, headers=headers)
 
+        soup = BeautifulSoup(res.text, 'html.parser')
+        return soup
         
     def add_item(self, URL, nickname):
         if "amazon" not in URL:
