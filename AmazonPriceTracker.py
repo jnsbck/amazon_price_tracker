@@ -41,7 +41,7 @@ class AmazonPriceTracker:
         res = requests.get(URL, headers=headers)
         res.raise_for_status()
 
-        soup = BeautifulSoup(res.text, 'html.parser')
+        soup = BeautifulSoup(res.text, parser)
         return soup
 
      
@@ -146,11 +146,13 @@ class AmazonPriceTracker:
                     print("Fetching price for {}.".format(self.items["nicknames"][n]))
                     soup = self.__webpage2html(URL, "lxml")
                     time.sleep(delay)
-
-                    price_str = soup.select("#priceblock_ourprice")[0].text.replace(",",".")
-                    price = float(price_str[:price_str.index(".")+3])
                     item_name = self.items["nicknames"][n]
-                    new_row[item_name] = [price]
+                    try:
+                        price_str = soup.select("#priceblock_ourprice")[0].text.replace(",",".")
+                        price = float(price_str[:price_str.index(".")+3])
+                        new_row[item_name] = [price]
+                    except IndexError:
+                        new_row[item_name] = [np.NaN]
                     
                 except HTTPError:
                     item_name = self.items["nicknames"][n]
