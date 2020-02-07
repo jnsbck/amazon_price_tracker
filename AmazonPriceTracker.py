@@ -217,9 +217,9 @@ class AmazonPriceTracker:
     def plot_prices(self, timescale="day"):
         fig = plt.figure(figsize=(10,6))
         time_axis = self.price_history[timescale]
-        tracked_items = list(tracker.price_history.columns)[5:]
+        tracked_items = list(self.price_history.columns)[5:]
         for item in tracked_items:
-            plt.plot(time_axis,tracker.price_history[item], "-o" , label=item)
+            plt.plot(time_axis,self.price_history[item], "-o" , label=item)
         
         plt.legend()
         plt.grid()
