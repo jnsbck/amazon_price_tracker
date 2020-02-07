@@ -144,7 +144,7 @@ class AmazonPriceTracker:
             for n, URL in enumerate(URLs):
                 try:
                     print("Fetching price for {}.".format(self.items["nicknames"][n]))
-                    soup = self.__webpage2html(URL, "lxml")
+                    soup = self.__webpage2html(URL, "html.parser")
                     time.sleep(delay)
                     item_name = self.items["nicknames"][n]
                     try:
