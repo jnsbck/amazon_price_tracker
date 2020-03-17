@@ -13,3 +13,4 @@ I have only tested it on amazon.de, but I think it should work on other domains 
 - display number of items left in stock if low and if available
 - check for internet connection before executing price fetch. In case of no connection postpone fetching by time delta
 - comparing amazons prices to other vendors
+- send email if the tracker goes down due to some kind of error
