@@ -3,14 +3,20 @@ This tool grew out of my need to be able to keep an eye on the price of differen
 It basically does what is stated, however I would still like to add further functionality in later releases.
 I have only tested it on amazon.de, but I think it should work on other domains extensions.
 
-##### This Tool is far from finished and still lacks a lot of basic functionalities (e.g. specifying currency).
+##### This Tool is far from finished and still lacks a lot of basic functionalities.
 
 ##### Functionanlities still to be added:
 - no item on this page ERROR
-- output status to a logfile while its running
-- send email if price drops below threshhold or by a margin,
-- send email at request of daily/weekly etc. with current prices and plot of price history attached
-- display number of items left in stock if low and if available
-- check for internet connection before executing price fetch. In case of no connection postpone fetching by time delta
+- maybe standardise product URLs after input. That means amazon. tplvldomain / sth / ASIN for every product
+- notification functionality via email
+    - daily/monthly update
+    - update if significant price drop
+    - add plots to email
+- remove eval methods and change how the items are stored
+- catch error between individual fetches or between updates and act accordingly, e.g. only fetch missing item again
+- add documentation and better commenting
+- add in_stock mechanic (maybe even how many items are left in stock)
+- add a verbose option to notifier initialise / individual functions
 - comparing amazons prices to other vendors
 - send email if the tracker goes down due to some kind of error
+
