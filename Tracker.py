@@ -271,24 +271,27 @@ class Tracker(Item, Scraper, Notifier, Parser):
     
     def update_prices(self, timeb4nextfetch=0):
         now = datetime.now()
-        for Item in self.Items:
-            try:
-                price, _ = self.fetch_price(Item)
-                Item.Price = price
-            except:
-                Item.Price = np.nan
-                self.log("failed", kind="response")
-                
-            Item.Last_updated = now
-            Item.Price_log["timestamp"].append(now)
-            Item.Price_log["price"].append(price)
-            time.sleep(timeb4nextfetch)
+        if len(self.Items) > 0:
+            for Item in self.Items:
+                try:
+                    price, _ = self.fetch_price(Item)
+                    Item.Price = price
+                except:
+                    Item.Price = np.nan
+                    self.log("failed", kind="response")
+
+                Item.Last_updated = now
+                Item.Price_log["timestamp"].append(now)
+                Item.Price_log["price"].append(price)
+                time.sleep(timeb4nextfetch)
+        else:
+            self.log("No items are being tracked. Add an item first.", end_char="\n")
                 
     def deploy(self):
-        self.log(self.Name + " has been deployed.")
+        self.log(self.Name + " has been deployed.", end_char="\n")
         while(True):
             self.log("Pinging Amazon.de...")
-            if self.test_connection(url="http://amazon.de"):
+            if self.test_connection(url="https://amazon.de"):
                 self.log("success", kind="response")
                 self.update_prices(5)
                 self.log("All prices have been updated.", status="success", end_char="\n")
@@ -347,4 +350,4 @@ class Tracker(Item, Scraper, Notifier, Parser):
             df.to_csv(self.Path + "price_hist.csv")
             self.log("success", kind="response")
             
-        return df         
+        return df      
