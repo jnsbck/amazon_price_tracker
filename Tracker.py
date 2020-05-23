@@ -237,7 +237,7 @@ class Tracker(Item, Scraper, Notifier, Parser):
         self.log("Parsing " + url + "...")
         asin, _ = self.parse_url(url)
         self.log("success", kind="response")
-        if asin not in list(map(self.__asin,tracker.Items)):
+        if asin not in list(map(self.__asin,self.Items)):
             self.log("Fetching webpage for " + alias + "...")
             html = self.webpage2soup(url)
             self.log("success", kind="response")
