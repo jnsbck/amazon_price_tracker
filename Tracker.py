@@ -196,7 +196,6 @@ class Tracker(Item, Scraper, Notifier, Parser):
         self.Path = path + name + "/"
         self.Name = name
         self.Items = []
-        
         Scraper.__init__(self)
         Parser.__init__(self)
         
@@ -257,6 +256,18 @@ class Tracker(Item, Scraper, Notifier, Parser):
             self.add_item(nickname, description, url, asin, price, currency, created, in_stock, created, save)
         else:
             self.log("ASIN matches an item that is already being tracḱed.", end_char="\n")
+    
+    def add_items_via_input(self):
+        while True:
+            try:
+                url = input("input url for an item to be added for tracking: ")
+                nickname = input("input a name for the item: ")
+                self.add_item_by_url(nickname, url)
+                ipt = input("Do you want to add another item to the list? [Yes/No]: ")
+                if "n" in ipt.lower():
+                    break
+            except:
+                print("Something seems to have gone wrong. Maybe the url was fautly. Please retry.")
         
     def list_items(self):
         for item in self.Items:
@@ -310,15 +321,17 @@ class Tracker(Item, Scraper, Notifier, Parser):
         regex = re.compile(r"/([a-zA-Z0-9-_]+)/$")
         m = regex.search(path)
         self.Name = m.groups()[0]
-        if len(self.Items) == 0:
-            files_in_dir = [f for f in os.listdir(self.Path) if os.path.isfile(os.path.join(self.Path, f))]
-            for file in files_in_dir:
-                if file[-4:] == ".txt":
-                    item = Item()
-                    self.log("Importing "+ item.Nickname + "...")
-                    item.from_txt(self.Path + file)
+        files_in_dir = [f for f in os.listdir(self.Path) if os.path.isfile(os.path.join(self.Path, f))]
+        for file in files_in_dir:
+            if file[-4:] == ".txt":
+                item = Item()
+                self.log("Importing "+ file[:-4] + "...")
+                item.from_txt(self.Path + file)
+                if item not in self.Items:
                     self.Items.append(item)
                     self.log("success", kind="response")
+                else:
+                    self.log("was already imported", kind="response")
         self.log("Loading logfile...")
         with open(self.Log_path + self.Logfile_name + ".log") as f:
             self.Log = f.read()
@@ -350,4 +363,4 @@ class Tracker(Item, Scraper, Notifier, Parser):
             df.to_csv(self.Path + "price_hist.csv")
             self.log("success", kind="response")
             
-        return df      
+        return df         
