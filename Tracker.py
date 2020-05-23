@@ -261,6 +261,8 @@ class Tracker(Item, Scraper, Notifier, Parser):
         while True:
             try:
                 url = input("input url for an item to be added for tracking: ")
+                if url == "":
+                    break
                 nickname = input("input a name for the item: ")
                 self.add_item_by_url(nickname, url)
                 ipt = input("Do you want to add another item to the list? [Yes/No]: ")
